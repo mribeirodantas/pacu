@@ -1,5 +1,5 @@
 #! /bin/bash
-###############################################
+#################################################################
 #   PACU 0.1
 #       PACS Automated Computer Utilities
 #    _____          _       _____   ______   
@@ -11,7 +11,19 @@
 #           Copyright (c) 2013
 #   <mribeirodantas at lais.huol.ufrn.br>
 #   
-##############################################
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# Read further in the LICENSE file.
+#   
+#################################################################
 
 # Variables
 PkgName=PACU_0.1_noarch
