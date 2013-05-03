@@ -20,7 +20,7 @@ PkgVersion=v0.1
 # Functions
 function send()
 {
-echo send images
+echo "send images"
 }
 
 function query()
@@ -49,43 +49,22 @@ function help()
 
 # Beginning
 case "$1" in
-	--help)
-		help
+	-s|--send)
+		send
 		;;
-	-h)
-		help
+	-q|--query)
+		query
+		;;
+	-p|--plot)
+		plot
+		;;
+	-d|--dump)
+		dump
+		;;
+	-r|--restore)
+		restore
 		;;
 	*)
 		help
-		;;
-	-s)
-		send
-		;;
-	--send)
-		send
-		;;
-	-q)
-		query
-		;;
-	--query)
-		query
-		;;
-	-p)
-		plot
-		;;
-	--plot)
-		plot
-		;;
-	-d)
-		dump
-		;;
-	--dump)
-		dump
-		;;
-	-r)
-		restore
-		;;
-	--restore)
-		restore
 		;;
 esac

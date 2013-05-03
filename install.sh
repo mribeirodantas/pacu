@@ -18,8 +18,12 @@
 # Function
 function install()
 {
-	cp -rf pacu.sh /usr/local/bin/pacu.sh
+	# && will make sure it won't try
+	# to link if copy fail.
+	echo "Installing.."
+	cp -rf pacu.sh /usr/local/bin/pacu.sh &&
 	ln -fs /usr/local/bin/pacu.sh /usr/local/bin/pacu
+	sleep 2
 }
 
 if [[ $EUID -ne 0 ]]; then
@@ -28,19 +32,20 @@ if [[ $EUID -ne 0 ]]; then
 else
 	if [ -f /usr/local/bin/pacu ]; then
 		echo "PACU is already installed." 2>&1
-		echo "Are you sure you want to install over?" 2>&1
+		echo "Are you sure you want to reinstall it?" 2>&1
 		read -n1 -p "[y/N]" reply
 		case "$reply" in
-			y*)
-				echo -e "\nInstalando.."
-				sleep 2
-				install
+			y)
+				echo ""
+				install &&
+				echo "PACU was successfully reinstalled."
 				;;
 			*)
 				echo -e "\nProcess finished."
 				;;
 		esac
 	else
-		install
+		install &&
+		echo "PACU was successfully installed."
 	fi
 fi
