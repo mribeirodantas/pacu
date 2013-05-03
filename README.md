@@ -1,3 +1,6 @@
+pacu
+====
+
 #! /bin/bash
 ###############################################
 #   PACU 0.1
@@ -12,8 +15,5 @@
 #   <mribeirodantas at lais.huol.ufrn.br>
 #   
 ##############################################
-
-pacu
-====
 
 PACU is a PACS Automated Computer Utilities, namely a toolchain for any Picture Archiving and Communication System administrator.
