@@ -51,14 +51,25 @@ function restore()
 {
 echo restore PACS db
 }
-function help()
+function miss()
 {
 	echo "PACS Automated Computer Utilities" $PkgVersion
 	echo "pacu [parameter] [option] [argument]"
 	echo "Run the help for further information."
 	echo "pacu --help"
 }
-
+function help()
+{
+	echo "PACS Automated Computer Utilities" $PkgVersion
+	echo "pacu [parameter] [option] [argument]"
+	echo -e "\nParameters\n"
+	echo "	-s --send	Send images to a PACS Server"
+	echo "	-q --query	Query images from a PACS Server"
+	echo "	-d --dump	Dump the PACS Server database"
+	echo "	-r --restore	Restore the PACS Server database"
+	echo "	-h --help	Display this help"
+	echo -e "\nOptions\n"
+}
 # Beginning
 case "$1" in
 	-s|--send)
@@ -76,7 +87,10 @@ case "$1" in
 	-r|--restore)
 		restore
 		;;
-	*)
+	-h|--help)
 		help
+		;;
+	*)
+		miss
 		;;
 esac
