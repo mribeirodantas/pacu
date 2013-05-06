@@ -1,0 +1,7 @@
+atest
+backup_source=" /home/mribeirodantas /opt/dcm/ /opt/pacs"
+:testatsd
+
+X testSDA 
+
+
