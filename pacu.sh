@@ -26,7 +26,7 @@
 #################################################################
 
 # Variables
-PkgName=PACU_0.1_noarch
+PkgName=PACU_a0.1_noarch
 PkgVersion=v0.1
 
 # Functions
