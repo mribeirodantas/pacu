@@ -29,14 +29,25 @@
 VERSION="a0.1"
 ARCH="noarch"
 
-# Function
+if [ $SUDO_USER == "" ];
+then
+	SUDO_USER="`who -m | awk '{print $1;}'`"
+fi
+
+LOGPATH="/home/$SUDO_USER/.pacuLog"
+
+# Functions
+
+function log()
+{
+	echo [  `date --date=now +%r`] $1 >> $LOGPATH
+	if [ "$2" == "print" ];
+	then
+		echo $1
+	fi
+}
 function install()
 {
-	if [ $SUDO_USER == ""];
-	then
-		SUDO_USER="`who -m | awk '{print $1;}'`"
-	fi
-
 	clear
 	echo "pacu.$VERSION-$ARCH"
 	echo "Thank you for using the PACS Automated Computer Utilities!"
@@ -53,14 +64,13 @@ function install()
 		echo -e "\n"
 	fi
 	# Creating Installation Log file
-	echo `date` > /home/$SUDO_USER/.pacuLog || (echo -e "Installation could not continue since it was unable to create log file\n" && exit 0)
-	echo "[PACU Installation started..]"
+	echo `date` > $LOGPATH || (echo -e "Installation could not continue since it was unable to create log file\n" && exit 0)
+	log "[PACU installation started]" "print"
 
-	echo "Creating binary.."
+	log "`echo Creating binary..`" "print"
 	sleep 1
-	cp -rf pacu.sh /usr/local/bin/pacu.sh &&
-	ln -fs /usr/local/bin/pacu.sh /usr/local/bin/pacu 2>> /home/$SUDO_USER/.paculog
-	echo "Creating configuration files in /home/$SUDO_USER/.."
+	log "`cp -rf pacu.sh /usr/local/bin/pacu.sh && ln -fs /usr/local/bin/pacu.sh /usr/local/bin/pacu 2>&1`"
+	log "Creating configuration files in /home/$SUDO_USER/.." "print"
 	sleep 1
 	if [ -f /home/$SUDO_USER/.pacu ];
 	then
@@ -69,7 +79,7 @@ function install()
 		read -n1 -p "[y/N]" answer
 		if [ "$answer" != "n" ] && [ "$answer" != "N" ];
 		then
-			cp -rf .pacu /home/$SUDO_USER/ 2>> /home/$SUDO_USER/.paculog
+			log "`cp -rf .pacu /home/$SUDO_USER/ 2>&1`"
 			echo -e "\nConfiguration file overwritten."
 			sleep 1
 		else
@@ -77,13 +87,13 @@ function install()
 			exit 0
 		fi
 	else
-		cp -rf .pacu /home/$SUDO_USER/ 2>> /home/$SUDO_USER/.paculog
+		log "`cp -rf .pacu /home/$SUDO_USER/ 2>&1`"
 	fi
-	echo "Checking installation.."
+	log "Checking installation.." "print"
 	sleep 1
 	if [ -f /home/$SUDO_USER/.pacu ] && [ -f /usr/local/bin/pacu ];
 	then
-		echo "PACU was successfully installed."
+		log "PACU was successfully installed." "print"
 	else
 		echo "For some reason, pacu was not installed."
 		echo "Check the log for further information."
