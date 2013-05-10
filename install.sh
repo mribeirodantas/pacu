@@ -52,12 +52,14 @@ function install()
 	else
 		echo -e "\n"
 	fi
-	# && will make sure it won't try
-	# to link if copy fail.
+	# Creating Installation Log file
+	echo `date` > /home/$SUDO_USER/.pacuLog || (echo -e "Installation could not continue since it was unable to create log file\n" && exit 0)
+	echo "[PACU Installation started..]"
+
 	echo "Creating binary.."
 	sleep 1
 	cp -rf pacu.sh /usr/local/bin/pacu.sh &&
-	ln -fs /usr/local/bin/pacu.sh /usr/local/bin/pacu
+	ln -fs /usr/local/bin/pacu.sh /usr/local/bin/pacu 2>> /home/$SUDO_USER/.paculog
 	echo "Creating configuration files in /home/$SUDO_USER/.."
 	sleep 1
 	if [ -f /home/$SUDO_USER/.pacu ];
@@ -67,7 +69,7 @@ function install()
 		read -n1 -p "[y/N]" answer
 		if [ "$answer" != "n" ] && [ "$answer" != "N" ];
 		then
-			cp -rf .pacu /home/$SUDO_USER/
+			cp -rf .pacu /home/$SUDO_USER/ 2>> /home/$SUDO_USER/.paculog
 			echo -e "\nConfiguration file overwritten."
 			sleep 1
 		else
@@ -75,7 +77,7 @@ function install()
 			exit 0
 		fi
 	else
-		cp -rf .pacu /home/$SUDO_USER/
+		cp -rf .pacu /home/$SUDO_USER/ 2>> /home/$SUDO_USER/.paculog
 	fi
 	echo "Checking installation.."
 	sleep 1
