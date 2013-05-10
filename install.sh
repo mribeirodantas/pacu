@@ -64,9 +64,14 @@ function install()
 		echo -e "\n"
 	fi
 	# Creating Installation Log file
-	echo `date` > $LOGPATH || (echo -e "Installation could not continue since it was unable to create log file\n" && exit 0)
-	log "[PACU installation started]" "print"
+	date > $LOGPATH || (echo -e "Installation could not continue since it was unable to create log file\n" && exit 0)
+	echo >> $LOGPATH
+	uname -a >> $LOGPATH
+	echo >> $LOGPATH
+	lsb_release -a >> $LOGPATH
+	echo >> $LOGPATH
 
+	log "[PACU installation started]" "print"
 	log "`echo Creating binary..`" "print"
 	sleep 1
 	log "`cp -rf pacu.sh /usr/local/bin/pacu.sh && ln -fs /usr/local/bin/pacu.sh /usr/local/bin/pacu 2>&1`"
@@ -94,6 +99,8 @@ function install()
 	if [ -f /home/$SUDO_USER/.pacu ] && [ -f /usr/local/bin/pacu ];
 	then
 		log "PACU was successfully installed." "print"
+		echo "You can view the installation log file in"
+		echo "/home/$SUDO_USER/.pacuLog"
 	else
 		echo "For some reason, pacu was not installed."
 		echo "Check the log for further information."
