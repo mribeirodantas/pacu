@@ -43,7 +43,7 @@ function log()
 	echo [  `date --date=now +%r`] $1 >> $LOGPATH
 	if [ "$2" == "print" ];
 	then
-		echo $1
+		echo -e "$1"
 	fi
 }
 function install()
@@ -85,7 +85,8 @@ function install()
 		if [ "$answer" != "n" ] && [ "$answer" != "N" ];
 		then
 			log "`cp -rf .pacu /home/$SUDO_USER/ 2>&1`"
-			echo -e "\nConfiguration file overwritten."
+			echo -e "\n"
+			log "Configuration file overwritten." "print"
 			sleep 1
 		else
 			echo -e "\n"
