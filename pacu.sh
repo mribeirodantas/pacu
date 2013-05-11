@@ -58,6 +58,10 @@ function miss()
 	echo "Run the help for further information."
 	echo "pacu --help"
 }
+function fbackup()
+{
+	echo "Performs full backup of your dcm4chee instance"
+}
 function help()
 {
 	echo "PACS Automated Computer Utilities" $PkgVersion
@@ -67,6 +71,7 @@ function help()
 	echo "	-q --query	Query images from a PACS Server"
 	echo "	-d --dump	Dump the PACS Server database"
 	echo "	-r --restore	Restore the PACS Server database"
+	echo "	--full-backup	Full backup of dcm4chee server"
 	echo "	-h --help	Display this help"
 	echo -e "\nOptions\n"
 }
@@ -89,6 +94,11 @@ case "$1" in
 		;;
 	-h|--help)
 		help
+		;;
+	#We gotta start doing something about it!
+	#It's supposed to be the first pacu own implementation of a tool
+	--full-backup)
+		fbackup
 		;;
 	*)
 		miss
