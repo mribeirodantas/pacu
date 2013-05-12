@@ -12,7 +12,7 @@ if [ -d /tmp/pacu ];
 then
    echo `grep "backup_source" /home/$SUDO_USER/.pacu` > /tmp/pacu/backupLine
 else
-   mkdir /tmp/pacu && echo `grep "backup_source" cfg` > /tmp/pacu/backupLine
+   mkdir /tmp/pacu && echo `grep "backup_source" /home/$SUDO_USER/.pacu` > /tmp/pacu/backupLine
 fi
 
 # Number of folders to back up
