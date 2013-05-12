@@ -29,7 +29,7 @@
 VERSION="a0.1"
 ARCH="noarch"
 
-if [ $SUDO_USER == "" ];
+if [ "$SUDO_USER" == "" ];
 then
 	SUDO_USER="`who -m | awk '{print $1;}'`"
 fi

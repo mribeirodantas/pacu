@@ -1,9 +1,16 @@
 #! /bin/bash
 
+# 
+
+if [ "$SUDO_USER" == "" ];
+then
+   SUDO_USER="`who -m | awk '{print $1;}'`"
+fi
+
 # Preparing temporary files for parsing
 if [ -d /tmp/pacu ];
 then
-   echo `grep "backup_source" cfg` > /tmp/pacu/backupLine
+   echo `grep "backup_source" /home/$SUDO_USER/.pacu` > /tmp/pacu/backupLine
 else
    mkdir /tmp/pacu && echo `grep "backup_source" cfg` > /tmp/pacu/backupLine
 fi
@@ -18,7 +25,10 @@ do
 	if [ "$dir" != "" ];
 	then
 		file=`echo $dir | gawk -F " " '{ print $1 }'`
-		#perform not-so-far-chosen backup strategy over the file below
-		echo $file
+		echo "Backing up $file.."
+		sleep 1
+		tar zcf $(basename $file)-`date +%Y%m%d`.tar.gz $file
 	fi
 done
+tar zcf backup-full-`date +%Y%m%d`.tar.gz --remove-files *-`date +%Y%m%d`.tar.gz && echo "The backup process is finished." && exit 0
+echo "There was an error and the backup process could not finish properly."
