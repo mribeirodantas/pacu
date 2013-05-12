@@ -1,3 +1,3 @@
 # Default configuration for dcm4chee installed in your /home
 
-backup_source="/home/user/dcm /opt/dcm /d/c/m/4 /opt/imgs /var/log"
+backup_source="/opt/dcm4chee-2.17.1-psql/server/default/archive /opt/dcm4chee-2.17.1-psql/server/default/conf /opt/dcm4chee-2.17.1-psql/server/default/data"
