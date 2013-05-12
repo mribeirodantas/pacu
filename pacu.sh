@@ -28,6 +28,11 @@
 # Variables
 PkgName=PACU_a0.1_noarch
 PkgVersion=v0.1
+if [ "$USER" == "" ];
+then
+   SUDO_USER="`who -m | awk '{print $1;}'`"
+fi
+
 
 # Functions
 function send()
@@ -58,10 +63,43 @@ function miss()
 	echo "Run the help for further information."
 	echo "pacu --help"
 }
-function fbackup()
+
+function backup()
 {
-	echo "Performs full backup of your dcm4chee instance"
+# Preparing temporary files for parsing
+if [ -d /tmp/pacu ];
+then
+   echo `grep "backup_source" /home/$USER/.pacu` > /tmp/pacu/backupLine
+else
+   mkdir /tmp/pacu && echo `grep "backup_source" /home/$USER/.pacu` > /tmp/pacu/backupLine
+fi
+
+# Number of folders to back up
+
+echo `cat /tmp/pacu/backupLine | cut -d "\"" -f2` > /tmp/pacu/backupLine
+n=`cat /tmp/pacu/backupLine | awk '-F[ ]' '{ t += NF - 1 } END { print t }'`
+for i in `seq 0 $n`
+do
+	dir=`cat /tmp/pacu/backupLine  | cut -d " " -f$((i+1))`
+	if [ "$dir" != "" ];
+	then
+		file=`echo $dir | gawk -F " " '{ print $1 }'`
+		echo "Backing up $file.."
+		sleep 1
+		if [ "$1" == "full" ];
+		then
+			tar zcvf $1-$(basename $file)-`date +%Y%m%d`.tar.gz $file
+			else if [ "$1" == "inc" ];
+			then
+				find $file -mtime -$2 -type f -print | tar zcvf $1-$(basename $file)-`date +%Y%m%d`.tar.gz -T -
+			fi
+		fi
+	fi
+done
+tar zcf backup-$1-`date +%Y%m%d`.tar.gz --remove-files $1*-`date +%Y%m%d`.tar.gz && echo "The backup process is finished." && exit 0
+echo "There was an error and the backup process could not finish properly."
 }
+
 function help()
 {
 	echo "PACS Automated Computer Utilities" $PkgVersion
@@ -72,9 +110,11 @@ function help()
 	echo "	-d --dump	Dump the PACS Server database"
 	echo "	-r --restore	Restore the PACS Server database"
 	echo "	--full-backup	Full backup of dcm4chee server"
+	echo "	--inc-backup [days] Incremental backup"
 	echo "	-h --help	Display this help"
 	echo -e "\nOptions\n"
 }
+
 # Beginning
 case "$1" in
 	-s|--send)
@@ -98,7 +138,16 @@ case "$1" in
 	#We gotta start doing something about it!
 	#It's supposed to be the first pacu own implementation of a tool
 	--full-backup)
-		fbackup
+		backup full
+		;;
+	--inc-backup)
+		if [ "$2" == "" ];
+		then
+			echo "You must inform the number of days after --inc-backup."
+			exit 0
+		else
+			backup inc $2
+		fi
 		;;
 	*)
 		miss
