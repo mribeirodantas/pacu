@@ -86,13 +86,18 @@ do
 		file=`echo $dir | gawk -F " " '{ print $1 }'`
 		echo "Backing up $file.."
 		sleep 1
-		if [ "$1" == "full" ];
+		if [ -d "$file" ];
 		then
-			tar zcvf $1-$(basename $file)-`date +%Y%m%d`.tar.gz $file
-			else if [ "$1" == "inc" ];
+			if [ "$1" == "full" ];
 			then
-				find $file -mtime -$2 -type f -print | tar zcvf $1-$(basename $file)-`date +%Y%m%d`.tar.gz -T -
+				tar zcvf $1-$(basename $file)-`date +%Y%m%d`.tar.gz $file
+				else if [ "$1" == "inc" ];
+				then
+					find $file -mtime -$2 -type f -print | tar zcvf $1-$(basename $file)-`date +%Y%m%d`.tar.gz -T -
+				fi
 			fi
+		else
+			echo "$file does not exist."
 		fi
 	fi
 done
