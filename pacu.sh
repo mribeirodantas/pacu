@@ -120,6 +120,11 @@ function help()
 	echo -e "\nOptions\n"
 }
 
+function freedups()
+{
+	/usr/local/bin/freedups
+}
+
 # Beginning
 case "$1" in
 	-s|--send)
@@ -140,8 +145,6 @@ case "$1" in
 	-h|--help)
 		help
 		;;
-	#We gotta start doing something about it!
-	#It's supposed to be the first pacu own implementation of a tool
 	--full-backup)
 		backup full
 		;;
@@ -153,6 +156,9 @@ case "$1" in
 		else
 			backup inc $2
 		fi
+		;;
+	--freedups)
+		freedups
 		;;
 	*)
 		miss

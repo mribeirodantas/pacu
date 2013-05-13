@@ -72,9 +72,12 @@ function install()
 	echo >> $LOGPATH
 
 	log "[PACU installation started]" "print"
-	log "`echo Creating binary..`" "print"
+	log "`echo Creating pacu binary..`" "print"
 	sleep 1
 	log "`cp -rf pacu.sh /usr/local/bin/pacu.sh && ln -fs /usr/local/bin/pacu.sh /usr/local/bin/pacu 2>&1`"
+	log "`echo Installing freedups..`" "print"
+	sleep 1
+	log "`cp -rf third-party/freedups.sh /usr/local/bin/freedups.sh && ln -fs /usr/local/bin/freedups.sh /usr/local/bin/freedups 2>&1`"
 	log "Creating configuration files in /home/$SUDO_USER/.." "print"
 	sleep 1
 	if [ -f /home/$SUDO_USER/.pacu ];
