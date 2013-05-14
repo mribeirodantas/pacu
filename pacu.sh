@@ -2,12 +2,12 @@
 #################################################################
 #   PACU 0.1
 #       PACS Automated Computer Utilities
-#    _____          _       _____   ______   
-#   |_   _|        / \     |_   _|.' ____ \  
-#     | |         / _ \      | |  | (___ \_| 
-#     | |   _    / ___ \     | |   _.____`.  
-#    _| |__/ | _/ /   \ \_  _| |_ | \____) | 
-#   |________||____| |____||_____| \______.' 
+#    _____          _       _____   ______
+#   |_   _|        / \     |_   _|.' ____ \
+#     | |         / _ \      | |  | (___ \_|
+#     | |   _    / ___ \     | |   _.____`.
+#    _| |__/ | _/ /   \ \_  _| |_ | \____) |
+#   |________||____| |____||_____| \______.'
 #           Copyright (c) 2013
 #   <mribeirodantas at lais.huol.ufrn.br>
 #
@@ -15,14 +15,14 @@
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
 # of the License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # Read further in the LICENSE file.
-#   
+#
 #################################################################
 
 # Variables
