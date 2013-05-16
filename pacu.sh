@@ -35,37 +35,30 @@ fi
 
 
 # Functions
-function send()
-{
-echo "send images"
+function send() {
+  echo "send images"
 }
 
-function query()
-{
-echo query images
+function query() {
+  echo query images
 }
-function plot()
-{
-echo plot dicom images
+function plot() {
+  echo plot dicom images
 }
-function dump()
-{
-echo dump PACS db
+function dump() {
+  echo dump PACS db
 }
-function restore()
-{
-echo restore PACS db
+function restore() {
+  echo restore PACS db
 }
-function miss()
-{
+function miss() {
   echo "PACS Automated Computer Utilities" $PkgVersion
   echo "pacu [parameter] [option] [argument]"
   echo "Run the help for further information."
   echo "pacu --help"
 }
 
-function backup()
-{
+function backup() {
 # Preparing temporary files for parsing
 if [ -d /tmp/pacu ];
 then
@@ -105,8 +98,7 @@ tar zcf backup-$1-`date +%Y%m%d`.tar.gz --remove-files $1*-`date +%Y%m%d`.tar.gz
 echo "There was an error and the backup process could not finish properly."
 }
 
-function help()
-{
+function help() {
   echo "PACS Automated Computer Utilities" $PkgVersion
   echo "pacu [parameter] [option] [argument]"
   echo -e "\nParameters\n"
@@ -121,8 +113,7 @@ function help()
   echo -e "\nOptions\n"
 }
 
-function freedups()
-{
+function freedups() {
   /usr/local/bin/freedups
 }
 
