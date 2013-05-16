@@ -87,6 +87,7 @@ do
         else if [ "$1" == "inc" ];
         then
           find $file -mtime -$2 -type f -print | tar zcvf $1-$(basename $file)-`date +%Y%m%d`.tar.gz -T -
+          #tar -g /home/$USER/bkp.log -zcvf /home/mribeirodantas/bkp/bkp3.tgz /home/mribeirodantas/bkp/
         fi
       fi
     else
