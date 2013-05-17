@@ -18,6 +18,31 @@ function about() {
   esac
 }
 
+#Backup
+function backup() {
+  line=`grep backup_source /home/mribeirodantas/.pacu | awk -F\" {' print $2 '}`
+  IFS=: read -r -a array <<<"$line"
+  cmd=(dialog --backtitle "PACS Automated Computer Utilities" \
+              --title "Backing up nodes" --scrollbar \
+              --ok-label "Go on" --cancel-label "Go back"
+              --checklist "Select the folders you want to backup" 11 70 20)
+  i=0 n=${#cmd[*]}
+
+  #Menu selection
+  for f in "${array[@]}"; do
+    cmd[n++]=$((i++)); cmd[n++]="$f"; cmd[n++]=""
+  done
+  choice=$("${cmd[@]}" 2>&1 >/dev/tty)
+
+  #Button click
+  response=$?
+  case $response in
+    0)strategy;;
+    1)menu;;
+    255) exit 0;;
+  esac
+}
+
 #Full Backup
 function full() {
   echo "Full backup"
@@ -65,30 +90,6 @@ function menu() {
   esac
 }
 
-#Backup
-function backup() {
-  line=`grep backup_source /home/mribeirodantas/.pacu | awk -F\" {' print $2 '}`
-  IFS=: read -r -a array <<<"$line"
-  cmd=(dialog --backtitle "PACS Automated Computer Utilities" \
-              --title "Backing up nodes" --scrollbar \
-              --ok-label "Go on" --cancel-label "Go back"
-              --checklist "Select the folders you want to backup" 11 70 20)
-  i=0 n=${#cmd[*]}
-
-  #Menu selection
-  for f in "${array[@]}"; do
-    cmd[n++]=$((i++)); cmd[n++]="$f"; cmd[n++]=""
-  done
-  choice=$("${cmd[@]}" 2>&1 >/dev/tty)
-
-  #Button click
-  response=$?
-  case $response in
-    0)strategy;;
-    1)menu;;
-    255) exit 0;;
-  esac
-}
 
 function strategy() {
   dialog --backtitle "PACS Automated Computer Utilities" \
@@ -102,17 +103,23 @@ function strategy() {
   #Button click
   response=$?
   case $response in
+    0)
+    #Menu selection
+    if [[ "$response" != 1 ]];
+    then
+      menuitem=$(<"${INPUT}")
+      case $menuitem in
+        "Full Backup") full;;
+        "Incremental Backup") inc;;
+        "Differential Backup") diffe;;
+        "Mirroring") mirror;;
+      esac
+    fi;;
     1)   backup;;
     255) exit 0;;
   esac
-  #Menu selection
-  menuitem=$(<"${INPUT}")
-  case $menuitem in
-    "Full Backup") full;;
-    "Incremental Backup") inc;;
-    "Differential Backup") diffe;;
-    "Mirroring") mirror;;
-  esac
+
+
 }
 
 #Loading app
