@@ -1,6 +1,23 @@
 #!/bin/bash
 INPUT=/tmp/menu.sh.$$
 
+#Help
+function about() {
+  dialog  --backtitle "PACS Automated Computer Utilities" \
+          --title "About" --ok-label "Go back" \
+          --msgbox "PACS Automated Computer Utilities, pacu, is developed by \
+                    Marcel Ribeiro Dantas <mribeirodantas@lais.huol.ufrn.br> \
+                    at the Laboratory of Technological Innovation in Healthcare\
+                    LAIS-HUOL-UFRN." 8 65
+  #Button click
+  response=$?
+  case $response in
+    0)  menu;;
+    1)  exit 0;;
+    255)  exit 0;;
+  esac
+}
+
 #Full Backup
 function full() {
   echo "Full backup"
@@ -20,14 +37,16 @@ function inc() {
 function diffe() {
   echo "Differential backup"
 }
+
 #Menu
 function menu() {
   dialog  --backtitle "PACS Automated Computer Utilities" \
           --title "Options" --cancel-label "Quit" \
-          --ok-label "Go on" \
-          --menu "Select the desired option:" 10 70 20 \
+          --ok-label "Go on" --scrollbar \
+          --menu "Select the desired option:" 11 70 20 \
           "Take a backup" "Take a backup right now" \
           "Configure" "Configure your backup nodes" \
+          "About" "About the toolchain" \
           "Help" "Get information on how to use pacu" 2> "${INPUT}"
 
   #Button click
@@ -41,7 +60,8 @@ function menu() {
   case $menuitem in
     "Take a backup") backup;;
          Configure) echo "Configure";;
-            Help) echo "help";;
+         About) about;;
+         Help) echo "Help";;
   esac
 }
 
@@ -52,7 +72,7 @@ function backup() {
   cmd=(dialog --backtitle "PACS Automated Computer Utilities" \
               --title "Backing up nodes" --scrollbar \
               --ok-label "Go on" --cancel-label "Go back"
-              --checklist "Select the folders you want to backup" 10 70 20)
+              --checklist "Select the folders you want to backup" 11 70 20)
   i=0 n=${#cmd[*]}
 
   #Menu selection
@@ -74,10 +94,11 @@ function strategy() {
   dialog --backtitle "PACS Automated Computer Utilities" \
          --title "Backing up nodes" --scrollbar \
          --ok-label "Go on" --cancel-label "Go back" \
-         --menu "Select the backup strategy" 10 70 20 \
+         --menu "Select the backup strategy" 11 70 20 \
          "Full Backup" "Make an entire copy of your nodes" \
          "Incremental Backup" "Copies the changes since the last MM/DD/YY" \
-         "Differential Backup" "Copies the changes comparing the last backup " 2> "${INPUT}"
+         "Differential Backup" "Copies the changes comparing the last backup" \
+         "Mirroring" "Mirrors a copy of the backup remotely" 2> "${INPUT}"
   #Button click
   response=$?
   case $response in
@@ -90,6 +111,7 @@ function strategy() {
     "Full Backup") full;;
     "Incremental Backup") inc;;
     "Differential Backup") diffe;;
+    "Mirroring") mirror;;
   esac
 }
 
@@ -100,5 +122,5 @@ sleep 0.01
 done
 echo 100; } | dialog --backtitle "PACS Automated Computer Utilities" \
                     --shadow --gauge "Starting.." 6 70 0
-
+#Starts app
 menu
