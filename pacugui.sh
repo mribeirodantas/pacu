@@ -24,22 +24,39 @@
 # Read further in the LICENSE file.
 #
 #################################################################
-INPUT=/tmp/menu.sh.$$
 
-#Help
-function about() {
+#
+INPUT=/tmp/pacu.$$
+#Stores the dialog click response
+response=
+#Stores the selected values
+choice=
+menuselection=
+
+#Menu
+function menu() {
   dialog  --backtitle "PACS Automated Computer Utilities" \
-          --title "About" --ok-label "Go back" \
-          --msgbox "PACS Automated Computer Utilities, pacu, is developed by \
-                    Marcel Ribeiro Dantas <mribeirodantas@lais.huol.ufrn.br> \
-                    at the Laboratory of Technological Innovation in Healthcare\
-                    LAIS-HUOL-UFRN." 8 65
+          --title "Options" --cancel-label "Quit" \
+          --ok-label "Go on" --scrollbar \
+          --menu "Select the desired option:" 11 70 20 \
+          "Take a backup" "Take a backup right now" \
+          "Configure" "Configure your backup nodes" \
+          "About" "About the toolchain" \
+          "Help" "Get information on how to use pacu" 2> "${INPUT}"
+
   #Button click
   response=$?
   case $response in
-    0)  menu;;
-    1)  exit 0;;
-    255)  exit 0;;
+    1)   exit 0;;
+    255) exit 0;;
+  esac
+  #Menu selection
+  menuitem=$(<"${INPUT}")
+  case $menuitem in
+    "Take a backup") backup;;
+         Configure) configure;;
+         About) about;;
+         Help) echo "Help";;
   esac
 }
 
@@ -68,54 +85,6 @@ function backup() {
   esac
 }
 
-#Full Backup
-function full() {
-  echo "Full backup"
-  # Do the Backup
-  echo "Here's the file you chose:"
-  for cho in $choice;
-  do
-    ls -ld -- "${array[cho]}"
-  done
-}
-#Incremental Backup
-function inc() {
-  echo "Incremental Backup"
-}
-
-#Differential Backup
-function diffe() {
-  echo "Differential backup"
-}
-
-#Menu
-function menu() {
-  dialog  --backtitle "PACS Automated Computer Utilities" \
-          --title "Options" --cancel-label "Quit" \
-          --ok-label "Go on" --scrollbar \
-          --menu "Select the desired option:" 11 70 20 \
-          "Take a backup" "Take a backup right now" \
-          "Configure" "Configure your backup nodes" \
-          "About" "About the toolchain" \
-          "Help" "Get information on how to use pacu" 2> "${INPUT}"
-
-  #Button click
-  response=$?
-  case $response in
-    1)   exit 0;;
-    255) exit 0;;
-  esac
-  #Menu selection
-  menuitem=$(<"${INPUT}")
-  case $menuitem in
-    "Take a backup") backup;;
-         Configure) echo "Configure";;
-         About) about;;
-         Help) echo "Help";;
-  esac
-}
-
-
 function strategy() {
   dialog --backtitle "PACS Automated Computer Utilities" \
          --title "Backing up nodes" --scrollbar \
@@ -143,8 +112,79 @@ function strategy() {
     1)   backup;;
     255) exit 0;;
   esac
+}
 
+#Full Backup
+function full() {
+  echo "Full backup"
+  # Do the Backup
+  echo "Here's the file you chose:"
+  for cho in $choice;
+  do
+    ls -ld -- "${array[cho]}"
+  done
+}
+#Incremental Backup
+function inc() {
+  echo "Incremental Backup"
+}
 
+#Differential Backup
+function diffe() {
+  echo "Differential backup"
+}
+
+#Configure back up
+function configure() {
+  line=`grep backup_source $HOME/.pacu | awk -F\" {' print $2 '}`
+  IFS=: read -r -a array <<<"$line"
+  cmd=(dialog --backtitle "PACS Automated Computer Utilities" \
+              --title "Configuring nodes" --scrollbar \
+              --ok-label "Altern node"  \
+              --cancel-label "Go back"
+              --extra-button --extra-label "Remove node" \
+              --checklist "Select the folders you want to alter" 11 70 20)
+  i=0 n=${#cmd[*]}
+
+  #Menu selection
+  for f in "${array[@]}"; do
+    cmd[n++]=$((i++)); cmd[n++]="$f"; cmd[n++]=""
+  done
+  choice=$("${cmd[@]}" 2>&1 >/dev/tty)
+
+  #Button click
+  response=$?
+  case $response in
+    0)echo "Here are the files you chose to alter:"
+      for cho in $choice;
+      do
+        echo "${array[cho]}"
+      done;;
+    2|3)echo "Here are the files you chose to remove:"
+      for cho in $choice;
+      do
+        echo "${array[cho]}"
+      done;;
+    1)menu;;
+    255) exit 0;;
+  esac
+}
+
+#About
+function about() {
+  dialog  --backtitle "PACS Automated Computer Utilities" \
+          --title "About" --ok-label "Go back" \
+          --msgbox "PACS Automated Computer Utilities, pacu, is developed by \
+                    Marcel Ribeiro Dantas <mribeirodantas@lais.huol.ufrn.br> \
+                    at the Laboratory of Technological Innovation in Healthcare\
+                    LAIS-HUOL-UFRN." 8 65
+  #Button click
+  response=$?
+  case $response in
+    0)  menu;;
+    1)  exit 0;;
+    255)  exit 0;;
+  esac
 }
 
 #Loading app
