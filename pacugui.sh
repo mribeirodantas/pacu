@@ -55,10 +55,10 @@ function chooseMNode() {
   choice=$("${cmd[@]}" 2>&1 >/dev/tty)
   clickResponse=$?
   case $clickResponse in
-  0) for cho in $choice;
-     do
-      echo ${array[cho]}
-     done;;
+    0) for cho in $choice;
+       do
+         echo ${array[cho]}
+       done;;
     1) menu;;
   255) exit 1;;
   esac
@@ -160,7 +160,12 @@ function remove() {
   nodes=$(chooseMNode "Select the nodes to remove")
   grep -v "^${nodes[cho]}" $nodesFile > /tmp/nodes.$$ &&
   mv /tmp/nodes.$$ $nodesFile &&
-  menu
+  if [[ $(echo "${nodes[@]}" | wc -l) -gt '1' ]];
+  then
+    messageBox "It's done!" "${nodes[cho]} were removed successfully" "menu";
+  else
+    messageBox "It's done!" "${nodes[cho]} was removed successfully" "menu";
+  fi
 }
 
 #Manage

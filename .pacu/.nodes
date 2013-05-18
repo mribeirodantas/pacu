@@ -1,4 +1,6 @@
 #Configuration for nodes
-/home/:/media/:I:::
-/etc/:/media/:D:::
+#Usage:
+#source_path:target_path:backup_type:last_full_backup:remote_address
+/home/:/media/:I:2013-25-03:ssh@10.194.33.21_2222:
+/etc/:/media/:D:2013-1-1:ftp@10..194.25.21_21:
 /boot/:/media/:F:::
