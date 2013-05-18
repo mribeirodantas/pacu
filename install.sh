@@ -87,7 +87,8 @@ function install()
   log "[PACU installation started]" "print"
   log "Creating pacu binary.." "print"
   sleep 1
-  log "$(cp -rf pacu.sh $BIN/pacu.sh && ln -fs $BIN/pacu.sh $BIN/pacu)"
+  #pacugui is the focus for now
+  log "$(cp -rf pacu.sh $BIN/pacugui.sh && ln -fs $BIN/pacugui.sh $BIN/pacugui)"
   log "Installing freedups.." "print"
   sleep 1
   log "$(cp -rf third-party/freedups.sh $BIN/freedups.sh && ln -fs $BIN/freedups.sh $BIN/freedups)"
@@ -95,14 +96,14 @@ function install()
   sleep 1
   if [ -f "$PACUDIR/.nodes" ];
   then
-    echo "There is already a configuration file in $PACUDIR"
+    echo "There is already a node configuration file in $PACUDIR"
     echo "Overwrite it?"
     read -n1 -p "[y/N]" answer
     if [ "$answer" != "n" ] && [ "$answer" != "N" ];
     then
       log "`cp -rf .pacu/.nodes $PACUDIR ` 2>&1"
       echo -e "\n"
-      log "Configuration directory overwritten." "print"
+      log "Node configuration file overwritten." "print"
       sleep 1
     else
       echo -e "\n"
