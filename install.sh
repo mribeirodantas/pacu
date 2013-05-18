@@ -25,27 +25,33 @@
 #
 #################################################################
 
-# Variable
-VERSION="a0.1"
-ARCH="noarch"
-
+# Workaround so that `su -c` works as much as `sudo`
 if [ "$SUDO_USER" == "" ];
 then
   SUDO_USER="`who -m | awk '{print $1;}'`"
 fi
 
-LOGPATH="/home/$SUDO_USER/.pacuLog"
+# Variables
+VERSION="a0.1"
+ARCH="noarch"
+PACUDIR="/home/$SUDO_USER/.pacu"
+LOGPATH="$PACUDIR/pacuLog"
+BIN="/usr/local/bin"
 
 # Functions
-
 function log()
 {
-  echo [  `date --date=now +%r`] $1 >> $LOGPATH
+  if ! printf '%s\n' "[  `date --date=now +%r`  ] $1" >&3
+  then
+    printf '%s\n' 'evil error cant write to logfile' >&2
+    exit 1
+  fi
   if [ "$2" == "print" ];
   then
     echo -e "$1"
   fi
 }
+
 function install()
 {
   clear
@@ -63,48 +69,57 @@ function install()
   else
     echo -e "\n"
   fi
+  # Creating pacu dir
+  if [[ ! -d $PACUDIR ]];
+  then
+    mkdir -m=750 "$PACUDIR"
+  fi
   # Creating Installation Log file
-  date > $LOGPATH || (echo -e "Installation could not continue since it was unable to create log file\n" && exit 0)
-  echo >> $LOGPATH
-  uname -a >> $LOGPATH
-  echo >> $LOGPATH
-  lsb_release -a >> $LOGPATH
-  echo >> $LOGPATH
+  if ! exec 3> $LOGPATH
+  then
+    printf '%s\n' 'Could not create logfile. :-(' >&2')'
+    exit 1
+  fi
+  log "$(date)"
+  log "$(uname)"
+  log "$(lsb_release -a)"
 
   log "[PACU installation started]" "print"
-  log "`echo Creating pacu binary..`" "print"
+  log "Creating pacu binary.." "print"
   sleep 1
-  log "`cp -rf pacu.sh /usr/local/bin/pacu.sh && ln -fs /usr/local/bin/pacu.sh /usr/local/bin/pacu 2>&1`"
-  log "`echo Installing freedups..`" "print"
+  log "$(cp -rf pacu.sh $BIN/pacu.sh && ln -fs $BIN/pacu.sh $BIN/pacu)"
+  log "Installing freedups.." "print"
   sleep 1
-  log "`cp -rf third-party/freedups.sh /usr/local/bin/freedups.sh && ln -fs /usr/local/bin/freedups.sh /usr/local/bin/freedups 2>&1`"
-  log "Creating configuration files in /home/$SUDO_USER/.." "print"
+  log "$(cp -rf third-party/freedups.sh $BIN/freedups.sh && ln -fs $BIN/freedups.sh $BIN/freedups)"
+  log "Creating configuration files in $PACUDIR/.." "print"
   sleep 1
-  if [ -f /home/$SUDO_USER/.pacu ];
+  if [ -f "$PACUDIR/.nodes" ];
   then
-    echo "There is already a configuration file in /home/$SUDO_USER/"
+    echo "There is already a configuration file in $PACUDIR"
     echo "Overwrite it?"
     read -n1 -p "[y/N]" answer
     if [ "$answer" != "n" ] && [ "$answer" != "N" ];
     then
-      log "`cp -rf .pacu /home/$SUDO_USER/ 2>&1`"
+      log "`cp -rf .pacu/.nodes $PACUDIR ` 2>&1"
       echo -e "\n"
-      log "Configuration file overwritten." "print"
+      log "Configuration directory overwritten." "print"
       sleep 1
     else
       echo -e "\n"
-      exit 0
+      #exit 0
     fi
   else
-    log "`cp -rf .pacu /home/$SUDO_USER/ 2>&1`"
+    log "`cp -rf .pacu/.nodes $PACUDIR `"
   fi
+  log "Changing permissions of $PACUDIR" "print"
+  log "`chown -R $SUDO_USER.$SUDO_USER $PACUDIR`"
   log "Checking installation.." "print"
   sleep 1
-  if [ -f /home/$SUDO_USER/.pacu ] && [ -f /usr/local/bin/pacu ];
+  if [ -d $PACUDIR ] && [ -f $BIN/pacu ];
   then
     log "PACU was successfully installed." "print"
     echo "You can view the installation log file in"
-    echo "/home/$SUDO_USER/.pacuLog"
+    echo "$LOGPATH"
   else
     echo "For some reason, pacu was not installed."
     echo "Check the log for further information."
@@ -114,12 +129,12 @@ function install()
 # Beginning
 
 if [[ $EUID -ne 0 ]]; then
-  echo "You must be a root user to perform the installation." 2>&1
+  echo "You must be a root user to perform the installation."
   exit 1
 else
-  if [ -f /usr/local/bin/pacu ]; then
-    echo "PACU is already installed." 2>&1
-    echo "Are you sure you want to reinstall it?" 2>&1
+  if [ -f $BIN/pacu ]; then
+    echo "PACU is already installed."
+    echo "Are you sure you want to reinstall it?"
     read -n1 -p "[y/N]" answer
     case "$answer" in
       y|Y)
