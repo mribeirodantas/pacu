@@ -36,7 +36,7 @@ VERSION="a0.1"
 ARCH="noarch"
 PACUDIR="/home/$SUDO_USER/.pacu"
 LOGPATH="$PACUDIR/pacuLog"
-BIN="/usr/local/bin"
+bin="/usr/local/bin"
 
 # Functions
 function log()
@@ -88,10 +88,10 @@ function install()
   log "Creating pacu binary.." "print"
   sleep 1
   #pacugui is the focus for now
-  log "$(cp -rf pacu.sh $BIN/pacugui.sh && ln -fs $BIN/pacugui.sh $BIN/pacugui)"
+  log "$(cp -rf pacugui.sh $bin/pacugui.sh && ln -fs $BIN/pacugui.sh $BIN/pacugui)"
   log "Installing freedups.." "print"
   sleep 1
-  log "$(cp -rf third-party/freedups.sh $BIN/freedups.sh && ln -fs $BIN/freedups.sh $BIN/freedups)"
+  log "$(cp -rf third-party/freedups.sh $bin/freedups.sh && ln -fs $BIN/freedups.sh $BIN/freedups)"
   log "Creating configuration files in $PACUDIR/.." "print"
   sleep 1
   if [ -f "$PACUDIR/.nodes" ];
@@ -114,16 +114,20 @@ function install()
   fi
   log "Changing permissions of $PACUDIR" "print"
   log "`chown -R $SUDO_USER.$SUDO_USER $PACUDIR`"
+  log "`chown $SUDO_USER.$SUDO_USER $bin/pacugui.sh`"
+  log "`chown $SUDO_USER.$SUDO_USER $bin/pacugui`"
+  log "`chmod 770 $bin/pacugui`"
   log "Checking installation.." "print"
   sleep 1
-  if [ -d $PACUDIR ] && [ -f $BIN/pacu ];
+  if [ -d $PACUDIR ] && [ -f $bin/pacugui ];
   then
     log "PACU was successfully installed." "print"
     echo "You can view the installation log file in"
     echo "$LOGPATH"
   else
     echo "For some reason, pacu was not installed."
-    echo "Check the log for further information."
+    echo "Check the log in $LOGPATH"
+    echo "for further information."
   fi
 }
 
@@ -133,7 +137,7 @@ if [[ $EUID -ne 0 ]]; then
   echo "You must be a root user to perform the installation."
   exit 1
 else
-  if [ -f $BIN/pacu ]; then
+  if [ -f $bin/pacugui ]; then
     echo "PACU is already installed."
     echo "Are you sure you want to reinstall it?"
     read -n1 -p "[y/N]" answer

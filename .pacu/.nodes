@@ -1,3 +1,4 @@
 #Configuration for nodes
-/home/:/var/:d:::
-/etc/:/var/:d:::
+/home/:/media/:I:::
+/etc/:/media/:D:::
+/boot/:/media/:F:::
