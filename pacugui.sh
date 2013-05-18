@@ -25,50 +25,27 @@
 #
 #################################################################
 
-#
-NODES=$HOME/.pacu/.nodes
-INPUT=/tmp/pacu.$$
-#Stores the dialog click response
-response=
-#Stores the selected values
-choice=
-menuselection=
+#Variables
+#Node config path
+nodesFile=$HOME/.pacu/.nodes
 
-#Menu
-function menu() {
-  dialog  --backtitle "PACS Automated Computer Utilities" \
-          --title "Options" --cancel-label "Quit" \
-          --ok-label "Go on" --scrollbar \
-          --menu "Select the desired option:" 11 70 20 \
-          "Take a backup" "Take a backup right now" \
-          "Configure" "Configure your backup nodes" \
-          "About" "About the toolchain" \
-          "Help" "Get information on how to use pacu" 2> "${INPUT}"
-
-  #Button click
-  response=$?
-  case $response in
-    1)   exit 0;;
-    255) exit 0;;
-  esac
-  #Menu selection
-  menuitem=$(<"${INPUT}")
-  case $menuitem in
-    "Take a backup") backup;;
-         Configure) configure;;
-         About) about;;
-         Help) echo "Help";;
-  esac
+#Choose a directory
+function chooseDir() {
+  FILE=$(dialog --title "Directory to track" \
+       --title "$1" --dselect "$2" 10 50 2>&1 >/dev/tty)
+  echo $FILE
 }
 
-#Backup
-function backup() {
-  line=`cat $HOME/.pacu/.nodes | sed '/#/ d' | gawk -F: {' print $1 '}`
-  IFS=: mapfile -t array <<<"$line"
+#Choosing a node
+
+function chooseMNode() {
+  node=`cat $nodesFile | sed '/#/ d' | gawk -F: {' print $1 '}`
+  IFS=: mapfile -t array <<<"$node"
   cmd=(dialog --backtitle "PACS Automated Computer Utilities" \
-              --title "Backing up nodes" --scrollbar \
-              --ok-label "Go on" --cancel-label "Go back"
-              --checklist "Select the folders you want to backup" 11 70 20)
+              --scrollbar \
+              --ok-label "Choose"  \
+              --cancel-label "Go back" \
+              --checklist "$1" 11 70 20)
   i=0 n=${#cmd[*]}
 
   #Menu selection
@@ -76,147 +53,184 @@ function backup() {
     cmd[n++]=$((i++)); cmd[n++]="$f"; cmd[n++]=""
   done
   choice=$("${cmd[@]}" 2>&1 >/dev/tty)
-
-  #Button click
-  response=$?
-  case $response in
-    0)strategy;;
-    1)menu;;
-    255) exit 0;;
+  clickResponse=$?
+  case $clickResponse in
+  0) for cho in $choice;
+     do
+      echo ${array[cho]}
+     done;;
+    1) menu;;
+  255) exit 1;;
   esac
 }
 
-function strategy() {
-  dialog --backtitle "PACS Automated Computer Utilities" \
+function backupType() {
+  cmd=$(dialog --backtitle "PACS Automated Computer Utilities" \
          --title "Backing up nodes" --scrollbar \
          --ok-label "Go on" --cancel-label "Go back" \
          --menu "Select the backup strategy" 11 70 20 \
          "Full Backup" "Make an entire copy of your nodes" \
          "Incremental Backup" "Copies the changes since the last MM/DD/YY" \
          "Differential Backup" "Copies the changes comparing the last backup" \
-         "Mirroring" "Mirrors a copy of the backup remotely" 2> "${INPUT}"
+         "Mirroring" "Mirrors a copy of the backup remotely" 2>&1 >/dev/tty)
   #Button click
-  response=$?
-  case $response in
+  clickResponse=$?
+  case $clickResponse in
     0)
     #Menu selection
-    if [[ "$response" != 1 ]];
+    if [[ "$clickResponse" != 1 ]];
     then
-      menuitem=$(<"${INPUT}")
-      case $menuitem in
-        "Full Backup") full;;
-        "Incremental Backup") inc;;
-        "Differential Backup") diffe;;
-        "Mirroring") mirror;;
+      case $cmd in
+        "Full Backup") echo "F";;
+        "Incremental Backup") echo "I";;
+        "Differential Backup") echo "D";;
+        "Mirroring") echo "M";;
       esac
     fi;;
-    1)   backup;;
+    1)   menu;;
     255) exit 0;;
   esac
 }
 
-#Full Backup
-function full() {
-  echo "Full backup"
-  # Do the Backup
-  echo "Here's the file you chose:"
-  for cho in $choice;
-  do
-    ls -ld -- "${array[cho]}"
-  done
-}
-#Incremental Backup
-function inc() {
-  echo "Incremental Backup"
-}
-
-#Differential Backup
-function diffe() {
-  echo "Differential backup"
-}
-
-#Configure back up
-function configure() {
-  line=`cat $HOME/.pacu/.nodes | sed '/#/ d' | gawk -F: {' print $1 '}`
-  IFS=: mapfile -t array <<<"$line"
-  cmd=(dialog --backtitle "PACS Automated Computer Utilities" \
-              --title "Configuring nodes" --scrollbar \
-              --ok-label "Add node"  \
-              --cancel-label "Go back"
-              --extra-button --extra-label "Alter node" \
-              --checklist "Select the folders you want to alter" 11 70 20)
-  i=0 n=${#cmd[*]}
-
-  #Menu selection
-  for f in "${array[@]}"; do
-    cmd[n++]=$((i++)); cmd[n++]="$f"; cmd[n++]=""
-  done
-  choice=$("${cmd[@]}" 2>&1 >/dev/tty)
+#messageBox
+#Usage: (messageBox "title" "text" "function to go back")
+function messageBox() {
+  (dialog  --backtitle "PACS Automated Computer Utilities" \
+          --title "$1" --ok-label "Go back" \
+          --msgbox "$2" 8 65)
 
   #Button click
-  response=$?
-  case $response in
-    0)FILEA=$(dialog --title "Directory to track" --title "Please choose the dir to back up" --dselect / 8 40 2>&1 >/dev/tty);
-      FILEB=$(dialog --title "Target directory" --title "Please choose a place to store your backup" --dselect / 14 48 2>&1 >/dev/tty);
-      dialog --backtitle "PACS Automated Computer Utilities" \
-        --title "Backing up nodes" --scrollbar \
-        --ok-label "Go on" --cancel-label "Go back" \
-        --menu "Select the backup strategy" 11 70 20 \
-        "Full Backup" "Make an entire copy of your nodes" \
-        "Incremental Backup" "Copies the changes since the last MM/DD/YY" \
-        "Differential Backup" "Copies the changes comparing the last backup" \
-        "Mirroring" "Mirrors a copy of the backup remotely" 2> "${INPUT}"
-      #Button click
-      response=$?
-      case $response in
-        0)
-          #Menu selection
-          if [[ "$responseb" != 1 ]];
-          then
-            menuitem=$(<"${INPUT}")
-            case $menuitem in
-              "Full Backup") BKPTYPE="F";;
-              "Incremental Backup") BKPTYPE="I";;
-              "Differential Backup") BKPTYPE="D";;
-              "Mirroring") BKPTYPE="M";;
-            esac
-          fi
-          echo "$FILEA":"$FILEB":"$BKPTYPE"::: >> $NODES
-          ;;
-          1)   backup;;
-          255) exit 0;;
-          esac
-        ;;
-    2|3)echo "Alter"
-      ;;
-    1)menu;;
-    255) exit 0;;
-  esac
-}
-
-#About
-function about() {
-  dialog  --backtitle "PACS Automated Computer Utilities" \
-          --title "About" --ok-label "Go back" \
-          --msgbox "PACS Automated Computer Utilities, pacu, is developed by \
-                    Marcel Ribeiro Dantas <mribeirodantas@lais.huol.ufrn.br> \
-                    at the Laboratory of Technological Innovation in Healthcare\
-                    LAIS-HUOL-UFRN." 8 65
-  #Button click
-  response=$?
-  case $response in
-    0)  menu;;
+  clickResponse=$?
+  case $clickResponse in
+    0)  $3;;
     1)  exit 0;;
     255)  exit 0;;
   esac
 }
 
-#Loading app
-{ for I in $(seq 1 100) ; do
-echo $I
+#Add
+function add() {
+source=$(chooseDir "Choose the directory to track" "/")
+#Do the source path exist?
+if [[ ! -d $source ]];
+then
+  messageBox "Error!" "The path $source does not exist." "menu"
+fi
+target=$(chooseDir "Where do you want to place the backup?" "/")
+#Do the target path exist?
+if [[ ! -d $target ]];
+then
+  messageBox "Error!" "The path $target does not exist." "menu"
+fi
+strategy=$(backupType)
+
+#Is there already a backup node within this source path?
+#For now, you cant backup /home/ if you backuped /home/username(issue)
+#But you can do it the other way around
+if grep "^$source" "$nodesFile"
+then
+  messageBox "Error!" "There is already a backup node within $source" "menu";
+else
+  echo "$source":"$target":"$strategy"::: >> "$nodesFile" && messageBox "Congratulations!" "$source -> $target ($strategy) was added successfully" "menu";
+fi
+}
+
+#List node
+function list() {
+  nLines=$(cat $nodesFile | sed '/#/ d' | wc -l 2>&1)
+  for ((i=1; i<=$nLines; ++i )) ;
+  do
+    nodeSource[$i]=`cat $nodesFile | sed '/#/ d' |  sed -n "$i p" | gawk -F: {' print $1 '}`
+    nodeTarget[$i]=`cat $nodesFile | sed '/#/ d' |  sed -n "$i p" | gawk -F: {' print $2 '}`
+    backupType[$i]=`cat $nodesFile | sed '/#/ d' |  sed -n "$i p" | gawk -F: {' print $3 '}`
+  done
+  for ((i=1; i<=$nLines; ++i )) ; 
+  do
+    #TODO: Dialog for showing that
+    echo "--------------------------------------------"
+    echo "Source: ${nodeSource[$i]}"
+    echo "Target: ${nodeTarget[$i]}"
+    echo "Type: ${backupType[$i]}"
+  done
+  echo "--------------------------------------------"
+}
+
+#Remove node
+function remove() {
+  nodes=$(chooseMNode "Select the nodes to remove")
+  grep -v "^${nodes[cho]}" $nodesFile > /tmp/nodes.$$ &&
+  mv /tmp/nodes.$$ $nodesFile &&
+  menu
+}
+
+#Manage
+function manage() {
+  cmd=$(dialog  --backtitle "PACS Automated Computer Utilities" \
+          --title "Managing Nodes" --cancel-label "Go back" \
+          --ok-label "Go on" --scrollbar \
+          --menu "What do you want to do?" 13 60 20 \
+          "List" "List nodes" \
+          "Edit" "Edit node configuration" \
+          "Remove" "Stop tracking a node" 2>&1 >/dev/tty)
+
+  #Button click
+  clickResponse=$?
+  case $clickResponse in
+    0)#Menu selection
+      case $cmd in
+        List) list;;
+        Remove) remove;;
+        Edit) echo "edit";;
+      esac;;
+    1) menu;;
+    255) exit 0;; # Escape
+  esac
+
+
+}
+
+#About
+function about() {
+  (messageBox "About" "PACS Automated Computer Utilities, PACU, is developed by \
+                    Marcel Ribeiro Dantas <mribeirodantas@lais.huol.ufrn.br> \
+                    at the Laboratory of Technological Innovation in Healthcare\
+                    LAIS-HUOL-UFRN." "menu")
+}
+#Menu window
+function menu() {
+  cmd=$(dialog  --backtitle "PACS Automated Computer Utilities" \
+          --title "PACU Options" --cancel-label "Quit" \
+          --ok-label "Go on" --scrollbar \
+          --menu "What do you want to do?" 13 60 20 \
+          "Back Up" "Take a backup right now" \
+          "Add" "Add a new node to PACU" \
+          "Manage" "Manage your backup nodes" \
+          "About" "About the toolchain" \
+          "Help" "Get information on how to use PACU" 2>&1 >/dev/tty)
+
+  #Button click
+  clickResponse=$?
+  case $clickResponse in
+    1)   exit 0;; # Quit
+    255) exit 0;; # Escape
+  esac
+
+  #Menu selection
+  case $cmd in
+    "Back Up") backup;;
+    Add) add;;
+    Manage) manage;;
+    About) about;;
+    Help) echo "Help";;
+  esac
+}
+
+#Loading script
+{ for i in $(seq 1 100) ; do
+echo $i
 sleep 0.01
 done
 echo 100; } | dialog --backtitle "PACS Automated Computer Utilities" \
-                    --shadow --gauge "Starting.." 6 70 0
-#Starts app
+                    --shadow --gauge "Loading data.." 6 70 0
+#Starts script
 menu
