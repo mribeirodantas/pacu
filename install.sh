@@ -32,10 +32,10 @@ then
 fi
 
 # Variables
-VERSION="a0.1"
-ARCH="noarch"
-PACUDIR="/home/$SUDO_USER/.pacu"
-LOGPATH="$PACUDIR/pacuLog"
+version="a0.1"
+arch="noarch"
+pacudir="/home/$SUDO_USER/.pacu"
+logpath="$pacudir/pacuLog"
 bin="/usr/local/bin"
 
 # Functions
@@ -55,7 +55,7 @@ function log()
 function install()
 {
   clear
-  echo "pacu.$VERSION-$ARCH"
+  echo "pacu.$version-$arch"
   echo "Thank you for using the PACS Automated Computer Utilities!"
   echo "You may want to take a look at the RELEASE file in order"
   echo "to see what has changed since the last version!"
@@ -70,12 +70,12 @@ function install()
     echo -e "\n"
   fi
   # Creating pacu dir
-  if [[ ! -d $PACUDIR ]];
+  if [[ ! -d $pacudir ]];
   then
-    mkdir -m=750 "$PACUDIR"
+    mkdir -m=750 "$pacudir"
   fi
   # Creating Installation Log file
-  if ! exec 3> $LOGPATH
+  if ! exec 3> $logpath
   then
     printf '%s\n' 'Could not create logfile. :-(' >&2')'
     exit 1
@@ -88,20 +88,20 @@ function install()
   log "Creating pacu binary.." "print"
   sleep 1
   #pacugui is the focus for now
-  log "$(cp -rf pacugui.sh $bin/pacugui.sh && ln -fs $BIN/pacugui.sh $BIN/pacugui)"
+  log "$(cp -rf pacugui.sh $bin/pacugui.sh && ln -fs $bin/pacugui.sh $bin/pacugui)"
   log "Installing freedups.." "print"
   sleep 1
-  log "$(cp -rf third-party/freedups.sh $bin/freedups.sh && ln -fs $BIN/freedups.sh $BIN/freedups)"
-  log "Creating configuration files in $PACUDIR/.." "print"
+  log "$(cp -rf third-party/freedups.sh $bin/freedups.sh && ln -fs $bin/freedups.sh $bin/freedups)"
+  log "Creating configuration files in $pacudir/.." "print"
   sleep 1
-  if [ -f "$PACUDIR/.nodes" ];
+  if [ -f "$pacudir/.nodes" ];
   then
-    echo "There is already a node configuration file in $PACUDIR"
+    echo "There is already a node configuration file in $pacudir"
     echo "Overwrite it?"
     read -n1 -p "[y/N]" answer
     if [ "$answer" != "n" ] && [ "$answer" != "N" ];
     then
-      log "`cp -rf .pacu/.nodes $PACUDIR ` 2>&1"
+      log "`cp -rf .pacu/.nodes $pacudir ` 2>&1"
       echo -e "\n"
       log "Node configuration file overwritten." "print"
       sleep 1
@@ -110,23 +110,25 @@ function install()
       #exit 0
     fi
   else
-    log "`cp -rf .pacu/.nodes $PACUDIR `"
+    log "`cp -rf .pacu/.nodes $pacudir `"
   fi
-  log "Changing permissions of $PACUDIR" "print"
-  log "`chown -R $SUDO_USER.$SUDO_USER $PACUDIR`"
-  log "`chown $SUDO_USER.$SUDO_USER $bin/pacugui.sh`"
-  log "`chown $SUDO_USER.$SUDO_USER $bin/pacugui`"
-  log "`chmod 770 $bin/pacugui`"
+  log "Changing permissions of $pacudir" "print"
+  log "`chown -R $SUDO_USER.$SUDO_USER $pacudir`"
+  #log "`chown $SUDO_USER.$SUDO_USER $bin/pacugui.sh`"
+  #log "`chown $SUDO_USER.$SUDO_USER $bin/pacugui`"
+
+  log "`chmod 777 $bin/pacugui`"
+  log "`chmod 755 $bin/pacugui.sh`"
   log "Checking installation.." "print"
   sleep 1
-  if [ -d $PACUDIR ] && [ -f $bin/pacugui ];
+  if [ -d $pacudir ] && [ -f $bin/pacugui ];
   then
     log "PACU was successfully installed." "print"
     echo "You can view the installation log file in"
-    echo "$LOGPATH"
+    echo "$logpath"
   else
     echo "For some reason, pacu was not installed."
-    echo "Check the log in $LOGPATH"
+    echo "Check the log in $logpath"
     echo "for further information."
   fi
 }
