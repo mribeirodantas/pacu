@@ -143,16 +143,22 @@ function list() {
     nodeSource[$i]=`cat $nodesFile | sed '/#/ d' |  sed -n "$i p" | gawk -F: {' print $1 '}`
     nodeTarget[$i]=`cat $nodesFile | sed '/#/ d' |  sed -n "$i p" | gawk -F: {' print $2 '}`
     backupType[$i]=`cat $nodesFile | sed '/#/ d' |  sed -n "$i p" | gawk -F: {' print $3 '}`
+    lastFullBkp[$i]=`cat $nodesFile | sed '/#/ d' |  sed -n "$i p" | gawk -F: {' print $4 '}`
   done
   for ((i=1; i<=$nLines; ++i )) ; 
   do
     #TODO: Dialog for showing that
-    echo "--------------------------------------------"
-    echo "Source: ${nodeSource[$i]}"
-    echo "Target: ${nodeTarget[$i]}"
-    echo "Type: ${backupType[$i]}"
+    echo "--------------------------------------------" >>/tmp/list.$$
+    echo "Source: ${nodeSource[$i]}" >>/tmp/list.$$
+    echo "Target: ${nodeTarget[$i]}" >>/tmp/list.$$
+    echo "Type of Backup: ${backupType[$i]}" >>/tmp/list.$$
+    echo "Last Full Backup: ${lastFullBkp[$i]}" >>/tmp/list.$$
   done
-  echo "--------------------------------------------"
+  echo "--------------------------------------------" >>/tmp/list.$$
+  (dialog --scrollbar --exit-label "Go back" --textbox /tmp/list.$$ 25 40)
+  #Cleaning information, in case user wants to view it again
+  echo > /tmp/list.$$ 
+  menu
 }
 
 #Remove node
