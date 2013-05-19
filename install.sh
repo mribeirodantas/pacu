@@ -89,6 +89,7 @@ function install()
   sleep 1
   #pacugui is the focus for now
   log "$(cp -rf pacugui.sh $bin/pacugui.sh && ln -fs $bin/pacugui.sh $bin/pacugui)"
+  log "$(cp -rf pacu.sh $bin/pacu.sh && ln -fs $bin/pacu.sh $bin/pacu)"
   log "Installing freedups.." "print"
   sleep 1
   log "$(cp -rf third-party/freedups.sh $bin/freedups.sh && ln -fs $bin/freedups.sh $bin/freedups)"
@@ -114,11 +115,10 @@ function install()
   fi
   log "Changing permissions of $pacudir" "print"
   log "`chown -R $SUDO_USER.$SUDO_USER $pacudir`"
-  #log "`chown $SUDO_USER.$SUDO_USER $bin/pacugui.sh`"
-  #log "`chown $SUDO_USER.$SUDO_USER $bin/pacugui`"
-
   log "`chmod 777 $bin/pacugui`"
   log "`chmod 755 $bin/pacugui.sh`"
+  log "`chmod 777 $bin/pacu`"
+  log "`chmod 755 $bin/pacu.sh`"
   log "Checking installation.." "print"
   sleep 1
   if [ -d $pacudir ] && [ -f $bin/pacugui ];
