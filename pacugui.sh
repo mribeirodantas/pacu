@@ -59,7 +59,7 @@ function chooseMNode() {
        do
          echo ${array[cho]}
        done;;
-    1) menu;;
+    1) echo "back";;
   255) exit 1;;
   esac
 }
@@ -163,14 +163,23 @@ function list() {
 
 #Remove node
 function remove() {
-  nodes=$(chooseMNode "Select the nodes to remove")
-  grep -v "^${nodes[cho]}" $nodesFile > /tmp/nodes.$$ &&
-  mv /tmp/nodes.$$ $nodesFile &&
-  if [[ $(echo "${nodes[@]}" | wc -l) -gt '1' ]];
+  nodes=$(chooseMNode "Select the nodes to remove" "manage")
+  if [[ "$nodes" == "" ]]
   then
-    messageBox "It's done!" "${nodes[cho]} were removed successfully" "menu";
+    messageBox "Warning!" "You haven't selected any node" "menu"
+    return
+  elif [[ "$nodes" == "back" ]]
+  then
+    manage
   else
-    messageBox "It's done!" "${nodes[cho]} was removed successfully" "menu";
+    grep -v "^${nodes[cho]}" "$nodesFile" > /tmp/nodes.$$ &&
+    mv /tmp/nodes.$$ $nodesFile &&
+    if [[ $(echo "${nodes[@]}" | wc -l) -gt '1' ]];
+    then
+      messageBox "It's done!" "${nodes[cho]} were removed successfully" "menu";
+    else
+      messageBox "It's done!" "${nodes[cho]} was removed successfully" "menu";
+    fi
   fi
 }
 
@@ -238,7 +247,7 @@ function menu() {
 
 #Loading script
 #Nice effect for Gnome users
-if $(ps aux|grep /usr/bin/gnome-shell | sed '/--color/ d' 2>&1 /dev/null); then notify-send "Thanks for using PACU"; fi
+#if $(ps aux|grep /usr/bin/gnome-shell | sed '/--color/ d' 2>&1 /dev/null); then notify-send "Thanks for using PACU"; fi
 { for i in $(seq 1 100) ; do
 echo $i
 sleep 0.01
