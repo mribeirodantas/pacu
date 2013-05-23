@@ -37,7 +37,6 @@ function chooseDir() {
 }
 
 #Choosing a node
-
 function chooseMNode() {
   node=`cat $nodesFile | sed '/#/ d' | gawk -F: {' print $1 '}`
   IFS=: mapfile -t array <<<"$node"
@@ -157,7 +156,7 @@ function list() {
   echo "--------------------------------------------" >>/tmp/list.$$
   (dialog --scrollbar --exit-label "Go back" --textbox /tmp/list.$$ 25 40)
   #Cleaning information, in case user wants to view it again
-  echo > /tmp/list.$$ 
+  echo > /tmp/list.$$
   menu
 }
 
